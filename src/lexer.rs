@@ -29,6 +29,11 @@ enum TokenType {
     // Keywords
     Function,
     Let,
+    True,
+    False,
+    If,
+    Else,
+    Return,
 }
 
 #[derive(Debug, PartialEq)]
@@ -54,6 +59,11 @@ fn is_keyword(s: &str) -> Option<Token> {
     match s {
         "fn" => Some(Token(TokenType::Function, "fn".chars().collect())),
         "let" => Some(Token(TokenType::Let, "let".chars().collect())),
+        "true" => Some(Token(TokenType::True, "true".chars().collect())),
+        "false" => Some(Token(TokenType::False, "false".chars().collect())),
+        "if" => Some(Token(TokenType::If, "if".chars().collect())),
+        "else" => Some(Token(TokenType::Else, "else".chars().collect())),
+        "return" => Some(Token(TokenType::Return, "return".chars().collect())),
         _ => None,
     }
 }
@@ -192,6 +202,25 @@ mod tests {
             ],
             tokens,
         );
+    }
+
+    #[test]
+    fn keywords() {
+        let input = "fn let true false if else return";
+        let lexer = Lexer::new(input);
+        let tokens = lexer.lex();
+        compare_tokens(
+            vec![
+                Token(TokenType::Function, "fn".chars().collect()),
+                Token(TokenType::Let, "let".chars().collect()),
+                Token(TokenType::True, "true".chars().collect()),
+                Token(TokenType::False, "false".chars().collect()),
+                Token(TokenType::If, "if".chars().collect()),
+                Token(TokenType::Else, "else".chars().collect()),
+                Token(TokenType::Return, "return".chars().collect()),
+            ],
+            tokens,
+        )
     }
 
     #[test]
