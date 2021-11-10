@@ -10,7 +10,13 @@ enum TokenType {
     // Operators
     Assign,
     Plus,
+    Minus,
+    Asterisk,
+    Slash,
+    Bang,
 
+    LT,
+    GT,
     // Delimiters
     Comma,
     Semicolon,
@@ -84,6 +90,12 @@ impl Lexer {
             b')' => Token(TokenType::RParen, vec![self.ch as char]),
             b',' => Token(TokenType::Comma, vec![self.ch as char]),
             b'+' => Token(TokenType::Plus, vec![self.ch as char]),
+            b'-' => Token(TokenType::Minus, vec![self.ch as char]),
+            b'*' => Token(TokenType::Asterisk, vec![self.ch as char]),
+            b'/' => Token(TokenType::Slash, vec![self.ch as char]),
+            b'<' => Token(TokenType::LT, vec![self.ch as char]),
+            b'>' => Token(TokenType::GT, vec![self.ch as char]),
+            b'!' => Token(TokenType::Bang, vec![self.ch as char]),
             b'{' => Token(TokenType::LBrace, vec![self.ch as char]),
             b'}' => Token(TokenType::RBrace, vec![self.ch as char]),
             b'\0' => Token(TokenType::EOF, vec![self.ch as char]),
@@ -158,7 +170,7 @@ mod tests {
 
     #[test]
     fn basic_tokens() {
-        let input = "=+(){},;";
+        let input = "=+(){},;!-/*<>";
         let lexer = Lexer::new(input);
         let tokens = lexer.lex();
         compare_tokens(
@@ -171,6 +183,12 @@ mod tests {
                 Token(TokenType::RBrace, vec!['}']),
                 Token(TokenType::Comma, vec![',']),
                 Token(TokenType::Semicolon, vec![';']),
+                Token(TokenType::Bang, vec!['!']),
+                Token(TokenType::Minus, vec!['-']),
+                Token(TokenType::Slash, vec!['/']),
+                Token(TokenType::Asterisk, vec!['*']),
+                Token(TokenType::LT, vec!['<']),
+                Token(TokenType::GT, vec!['>']),
             ],
             tokens,
         );
