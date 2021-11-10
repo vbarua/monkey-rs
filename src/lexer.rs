@@ -15,6 +15,9 @@ enum TokenType {
     Slash,
     Bang,
 
+    Eq,
+    NEq,
+
     LT,
     GT,
     // Delimiters
@@ -90,11 +93,18 @@ impl Lexer {
         self.read_position += 1;
     }
 
+    fn peek(&self) -> u8 {
+        if self.read_position >= self.input.len() {
+            b'\0'
+        } else {
+            self.input[self.read_position]
+        }
+    }
+
     fn next_token(&mut self) -> Token {
         self.consume_whitespace();
 
         let token: Token = match self.ch {
-            b'=' => Token(TokenType::Assign, vec![self.ch as char]),
             b';' => Token(TokenType::Semicolon, vec![self.ch as char]),
             b'(' => Token(TokenType::LParen, vec![self.ch as char]),
             b')' => Token(TokenType::RParen, vec![self.ch as char]),
@@ -105,10 +115,25 @@ impl Lexer {
             b'/' => Token(TokenType::Slash, vec![self.ch as char]),
             b'<' => Token(TokenType::LT, vec![self.ch as char]),
             b'>' => Token(TokenType::GT, vec![self.ch as char]),
-            b'!' => Token(TokenType::Bang, vec![self.ch as char]),
             b'{' => Token(TokenType::LBrace, vec![self.ch as char]),
             b'}' => Token(TokenType::RBrace, vec![self.ch as char]),
             b'\0' => Token(TokenType::EOF, vec![self.ch as char]),
+            b'=' => {
+                if self.peek() == b'=' {
+                    self.read_char();
+                    Token(TokenType::Eq, "==".chars().collect())
+                } else {
+                    Token(TokenType::Assign, vec![self.ch as char])
+                }
+            }
+            b'!' => {
+                if self.peek() == b'=' {
+                    self.read_char();
+                    Token(TokenType::NEq, "!=".chars().collect())
+                } else {
+                    Token(TokenType::Bang, vec![self.ch as char])
+                }
+            }
             ch => {
                 if is_letter(ch as char) {
                     let value = self.read_identifier();
@@ -218,6 +243,20 @@ mod tests {
                 Token(TokenType::If, "if".chars().collect()),
                 Token(TokenType::Else, "else".chars().collect()),
                 Token(TokenType::Return, "return".chars().collect()),
+            ],
+            tokens,
+        )
+    }
+
+    #[test]
+    fn two_char_tokens() {
+        let input = "== !=";
+        let lexer = Lexer::new(input);
+        let tokens = lexer.lex();
+        compare_tokens(
+            vec![
+                Token(TokenType::Eq, "==".chars().collect()),
+                Token(TokenType::NEq, "!=".chars().collect()),
             ],
             tokens,
         )
